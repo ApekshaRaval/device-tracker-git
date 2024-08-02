@@ -22,17 +22,47 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    },
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, file.originalname),
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
+
+const checkAndCreateTable = async () => {
+    const tableExistsQuery = `
+        SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_name = 'users'
+        );
+    `;
+
+    const createTableQuery = `
+        CREATE TABLE users (
+            id VARCHAR(50) PRIMARY KEY,
+            name VARCHAR(100),
+            lat FLOAT,
+            lang FLOAT,
+            profile_pic VARCHAR(255)
+        );
+    `;
+
+    try {
+        const result = await pool.query(tableExistsQuery);
+        const tableExists = result.rows[0].exists;
+
+        if (!tableExists) {
+            await pool.query(createTableQuery);
+            console.log('Table "users" created successfully.');
+        }
+    } catch (err) {
+        console.error('Error checking or creating table:', err.message);
+    }
+};
 
 app.post('/add-user', upload.single('profilePic'), async (req, res) => {
+    await checkAndCreateTable();
+
     const { id, name, lat, lang } = req.body;
     const profilePic = req.file ? req.file.filename : null;
 
@@ -48,7 +78,7 @@ app.post('/add-user', upload.single('profilePic'), async (req, res) => {
 
     try {
         const newUser = await pool.query(
-            'INSERT INTO users (id, name, lat, lang, profile_pic) VALUES ($1, $2, $3, $4 , $5) RETURNING *',
+            'INSERT INTO users (id, name, lat, lang, profile_pic) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [id, name, lat, lang, profilePic]
         );
 
@@ -74,12 +104,14 @@ app.post('/add-user', upload.single('profilePic'), async (req, res) => {
 });
 
 app.get('/users', async (req, res) => {
+    await checkAndCreateTable();
+
     try {
         const users = await pool.query('SELECT * FROM users');
         return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
             errorCode: "SUC000",
-            message: "User Deleted Successfully",
+            message: "Users Retrieved Successfully",
             data: users.rows,
             error: "",
         });
@@ -103,32 +135,13 @@ app.get('/', (req, res) => {
         data: null,
         error: "",
     });
-})
+});
 
 app.post('/logout', async (req, res) => {
-    const { id } = req.body;
-    if (id) {
-        try {
-            const deleteUser = await pool.query('DELETE FROM users WHERE id = $1', [id]);
-            return res.status(HTTP_STATUS_CODE.OK).json({
-                status: HTTP_STATUS_CODE.OK,
-                errorCode: "SUC000",
-                message: "User Deleted Successfully",
-                data: deleteUser.rows,
-                error: "",
-            });
+    await checkAndCreateTable();
 
-        } catch (err) {
-            console.error('Error deleting user:', err.message);
-            return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
-                status: HTTP_STATUS_CODE.SERVER_ERROR,
-                errorCode: "ERR500",
-                message: "Internal Server Error!",
-                data: null,
-                error: err,
-            });
-        }
-    } else {
+    const { id } = req.body;
+    if (!id) {
         console.error('User ID not provided');
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
             status: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -139,6 +152,34 @@ app.post('/logout', async (req, res) => {
         });
     }
 
+    try {
+        const deleteUser = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+        if (deleteUser.rowCount === 0) {
+            return res.status(HTTP_STATUS_CODE.NOT_FOUND).json({
+                status: HTTP_STATUS_CODE.NOT_FOUND,
+                errorCode: "ERR404",
+                message: "User not found",
+                data: null,
+                error: "",
+            });
+        }
+        return res.status(HTTP_STATUS_CODE.OK).json({
+            status: HTTP_STATUS_CODE.OK,
+            errorCode: "SUC000",
+            message: "User Deleted Successfully",
+            data: deleteUser.rows[0],
+            error: "",
+        });
+    } catch (err) {
+        console.error('Error deleting user:', err.message);
+        return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+            status: HTTP_STATUS_CODE.SERVER_ERROR,
+            errorCode: "ERR500",
+            message: "Internal Server Error!",
+            data: null,
+            error: err,
+        });
+    }
 });
 
 server.listen(8000, () => {
@@ -147,10 +188,11 @@ server.listen(8000, () => {
 
 io.on('connection', (socket) => {
     socket.on('add-user', async (data) => {
-    }
-    )
+        // Handle 'add-user' event
+    });
+
     socket.on('send-location', async (data) => {
-        const { id, lat, lang } = data; // Assuming data contains user ID, lat, and long
+        const { id, lat, lang } = data;
 
         try {
             const updateLocation = await pool.query(
@@ -159,13 +201,8 @@ io.on('connection', (socket) => {
             );
 
             const updatedUser = updateLocation.rows[0];
-            io.emit('location', {
-                id: socket.id,
-                lat: data.lat,
-                lang: data.lang,
-            });
-
             if (updatedUser) {
+                io.emit('location', { id, lat, lang });
                 console.log(`Updated location for user ${id}`);
             } else {
                 console.error(`User with id ${id} not found`);
