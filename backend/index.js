@@ -96,7 +96,13 @@ app.get('/users', async (req, res) => {
 });
 
 app.get(('/', (req, res) => {
-    res.send('Hello World!');
+    return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        errorCode: "SUC000",
+        message: "Hello from here!",
+        data: null,
+        error: "",
+    });
 }))
 
 app.post('/logout', async (req, res) => {
