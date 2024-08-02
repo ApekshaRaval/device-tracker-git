@@ -54,7 +54,6 @@ app.post('/add-user', upload.single('profilePic'), async (req, res) => {
         );
 
         const user = newUser.rows[0];
-        console.log('user: ', user);
         io.emit('new-user', user);
         return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
@@ -142,7 +141,6 @@ io.on('connection', (socket) => {
     }
     )
     socket.on('send-location', async (data) => {
-        console.log('data: ', data);
         const { id, lat, lang } = data; // Assuming data contains user ID, lat, and long
 
         try {
@@ -152,7 +150,6 @@ io.on('connection', (socket) => {
             );
 
             const updatedUser = updateLocation.rows[0];
-            console.log('updatedUser: ', updatedUser);
             io.emit('location', {
                 id: socket.id,
                 lat: data.lat,
