@@ -10,9 +10,9 @@
 // });
 
 // export default pool;
-import pg from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const { Pool } = pg;
 
 const pool = new Pool({
     connectionString: process.env.POSTGRES_URL,
