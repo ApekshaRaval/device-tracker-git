@@ -4,7 +4,6 @@ import multer from 'multer';
 import express from 'express';
 import pool from './db.js';
 import cors from 'cors';
-import { send } from 'process';
 import HTTP_STATUS_CODE from './constants/constant.js';
 
 const app = express();
