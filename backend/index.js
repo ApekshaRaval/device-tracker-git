@@ -8,12 +8,12 @@ import HTTP_STATUS_CODE from './constants/constant.js';
 
 const app = express();
 const server = createServer(app);
-// const io = new Server(server, {
-//     cors: {
-//         origin: '*',
-//         methods: ['GET', 'POST'],
-//     },
-// });
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
 
 app.use(cors());
 app.use(express.json());
@@ -53,7 +53,7 @@ app.post('/add-user', upload.single('profilePic'), async (req, res) => {
         );
 
         const user = newUser.rows[0];
-        // io.emit('new-user', user);
+        io.emit('new-user', user);
         return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
             errorCode: "SUC000",
