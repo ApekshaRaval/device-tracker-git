@@ -95,7 +95,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-app.get(('/', (req, res) => {
+app.get('/', (req, res) => {
     return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         errorCode: "SUC000",
@@ -103,7 +103,7 @@ app.get(('/', (req, res) => {
         data: null,
         error: "",
     });
-}))
+})
 
 app.post('/logout', async (req, res) => {
     const { id } = req.body;
