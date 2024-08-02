@@ -187,6 +187,7 @@ server.listen(8000, () => {
 });
 
 io.on('connection', (socket) => {
+    console.log('socket user is connected: ', socket);
     socket.on('add-user', async (data) => {
         // Handle 'add-user' event
     });
