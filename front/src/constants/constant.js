@@ -1,0 +1,1 @@
+export const BACK_BASE_URL = "https://device-tracker-git-1yuy.vercel.app";

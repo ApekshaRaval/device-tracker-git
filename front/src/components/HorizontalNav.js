@@ -7,6 +7,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { BACK_BASE_URL } from "@/constants/constant";
 
 
 export default function HorizontalNav() {
@@ -20,7 +21,7 @@ export default function HorizontalNav() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:8000/logout", {
+            const response = await fetch(`${BACK_BASE_URL}/logout`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -9,6 +9,7 @@ import { v4 as uuid } from "uuid";
 import useGeoLocation from "@/hook/useGeoLocation";
 import toast from "react-hot-toast";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { BACK_BASE_URL } from "@/constants/constant";
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-input::placeholder": {
@@ -42,7 +43,7 @@ const Home = () => {
     formData.append("profilePic", file);
 
     try {
-      const response = await fetch("http://localhost:8000/add-user", {
+      const response = await fetch(`${BACK_BASE_URL}/add-user`, {
         method: "POST",
         body: formData,
       });
@@ -90,7 +91,7 @@ const Home = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch("http://localhost:8000/users");
+      const response = await fetch(`${BACK_BASE_URL}/users`);
       const data = await response.json();
       setUsers(data?.data);
     } catch (error) {

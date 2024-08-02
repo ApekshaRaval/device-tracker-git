@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import useGeoLocation from "@/hook/useGeoLocation";
+import { BACK_BASE_URL } from "@/constants/constant";
 
 // Fix for default marker icon not showing
 delete L.Icon.Default.prototype._getIconUrl;
@@ -81,7 +82,7 @@ const Map = ({
                         : [Number(user.lat), Number(user.lang)];
                     const customIcon = L.icon({
                         iconUrl: user.profile_pic
-                            ? `http://localhost:8000/uploads/${user.profile_pic}`
+                            ? `${BACK_BASE_URL}/uploads/${user.profile_pic}`
                             : "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                         iconSize: [35, 35],
                         iconAnchor: [25, 50],

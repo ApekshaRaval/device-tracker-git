@@ -1,5 +1,6 @@
 'use client';
 
+import { BACK_BASE_URL } from '@/constants/constant';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 
@@ -13,14 +14,14 @@ const SocketProvider = ({ children }) => {
 
 
     useEffect(() => {
-        const newSocket = io('http://localhost:8000');
+        const newSocket = io(`${BACK_BASE_URL}`);
         setSocket(newSocket);
         return () => newSocket.close();
     }, []);
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch('http://localhost:8000/users');
+            const response = await fetch(`${BACK_BASE_URL}/users`);
             const data = await response.json();
             setUsers(data?.data);
         } catch (error) {
