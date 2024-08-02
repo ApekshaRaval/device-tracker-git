@@ -96,6 +96,10 @@ app.get('/users', async (req, res) => {
     }
 });
 
+app.get(('/', (req, res) => {
+    res.send('Hello World!');
+}))
+
 app.post('/logout', async (req, res) => {
     const { id } = req.body;
     if (id) {
