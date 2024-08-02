@@ -8,12 +8,12 @@ import HTTP_STATUS_CODE from './constants/constant.js';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-    },
-});
+// const io = new Server(server, {
+//     cors: {
+//         origin: '*',
+//         methods: ['GET', 'POST'],
+//     },
+// });
 
 app.use(cors());
 app.use(express.json());
@@ -53,7 +53,7 @@ app.post('/add-user', upload.single('profilePic'), async (req, res) => {
         );
 
         const user = newUser.rows[0];
-        io.emit('new-user', user);
+        // io.emit('new-user', user);
         return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
             errorCode: "SUC000",
@@ -145,37 +145,37 @@ server.listen(8000, () => {
     console.log('Server is running on port 8000');
 });
 
-io.on('connection', (socket) => {
-    socket.on('add-user', async (data) => {
-    }
-    )
-    socket.on('send-location', async (data) => {
-        const { id, lat, lang } = data; // Assuming data contains user ID, lat, and long
+// io.on('connection', (socket) => {
+//     socket.on('add-user', async (data) => {
+//     }
+//     )
+//     socket.on('send-location', async (data) => {
+//         const { id, lat, lang } = data; // Assuming data contains user ID, lat, and long
 
-        try {
-            const updateLocation = await pool.query(
-                'UPDATE users SET lat = $1, lang = $2 WHERE id = $3 RETURNING *',
-                [lat, lang, id]
-            );
+//         try {
+//             const updateLocation = await pool.query(
+//                 'UPDATE users SET lat = $1, lang = $2 WHERE id = $3 RETURNING *',
+//                 [lat, lang, id]
+//             );
 
-            const updatedUser = updateLocation.rows[0];
-            io.emit('location', {
-                id: socket.id,
-                lat: data.lat,
-                lang: data.lang,
-            });
+//             const updatedUser = updateLocation.rows[0];
+//             io.emit('location', {
+//                 id: socket.id,
+//                 lat: data.lat,
+//                 lang: data.lang,
+//             });
 
-            if (updatedUser) {
-                console.log(`Updated location for user ${id}`);
-            } else {
-                console.error(`User with id ${id} not found`);
-            }
-        } catch (err) {
-            console.error('Error updating location:', err.message);
-        }
-    });
+//             if (updatedUser) {
+//                 console.log(`Updated location for user ${id}`);
+//             } else {
+//                 console.error(`User with id ${id} not found`);
+//             }
+//         } catch (err) {
+//             console.error('Error updating location:', err.message);
+//         }
+//     });
 
-    socket.on('disconnect', () => {
-        io.emit('user-disconnect', socket.id);
-    });
-});
+//     socket.on('disconnect', () => {
+//         io.emit('user-disconnect', socket.id);
+//     });
+// });
