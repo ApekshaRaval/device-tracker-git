@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"app/map/page.js -> ../../components/Map\":{\"id\":\"app/map/page.js -> ../../components/Map\",\"files\":[\"static/css/_app-pages-browser_src_components_Map_js.css\",\"static/chunks/_app-pages-browser_src_components_Map_js.js\"]}}"

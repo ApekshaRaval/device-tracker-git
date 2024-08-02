@@ -6,11 +6,17 @@ import Button from "@mui/material/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 
 export default function HorizontalNav() {
-    const activeUser = JSON.parse(localStorage.getItem("user"));
+    const [activeUser, setActiveUser] = useState(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const activeUser = JSON.parse(localStorage.getItem("user"));
+        setActiveUser(activeUser);
+    }, [])
 
     const handleLogout = async () => {
         try {

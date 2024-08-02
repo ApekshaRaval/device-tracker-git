@@ -26,7 +26,7 @@ const Home = () => {
   const { socket, users, setUsers } = useSocket();
   const id = uuid();
   const { position } = useGeoLocation();
-  const activeUser = JSON.parse(localStorage.getItem("user"));
+  const [activeUser, setActiveUser] = useState(null);
   const router = useRouter();
 
   const handleStartMap = async () => {
@@ -82,6 +82,11 @@ const Home = () => {
       console.error("Error adding user:", err);
     }
   };
+
+  useEffect(() => {
+    const activeUser = JSON.parse(localStorage.getItem("user"));
+    setActiveUser(activeUser);
+  }, [])
 
   const fetchUserData = async () => {
     try {

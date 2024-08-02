@@ -5,8 +5,13 @@ import { useEffect, useState } from 'react';
 
 const useGeoLocation = () => {
     const { socket, users } = useSocket();
-    let activeUser = JSON.parse(localStorage.getItem("user"));
-    const [position, setPosition] = useState([activeUser?.lat || 51.505, activeUser?.lang || -0.09]);
+    const [activeUser, setActiveUser] = useState(null);
+    const [position, setPosition] = useState([51.505, -0.09]);
+
+    useEffect(() => {
+        let activeUser = JSON.parse(localStorage.getItem("user"));
+        setActiveUser(activeUser);
+    }, [])
 
     useEffect(() => {
         let watchId;
@@ -19,7 +24,7 @@ const useGeoLocation = () => {
                 if (activeUser) {
                     const updatedUser = { ...activeUser, lat: pos[0], lang: pos[1] };
                     localStorage.setItem("user", JSON.stringify(updatedUser));
-                    activeUser = updatedUser; // Update the ref
+                    setActiveUser(updatedUser); // Update the ref
                 }
             };
 
@@ -57,6 +62,10 @@ const useGeoLocation = () => {
             };
         }
     }, [socket]);
+
+    if (!activeUser) {
+        return <div>loading..</div>
+    }
 
     return {
         position,
