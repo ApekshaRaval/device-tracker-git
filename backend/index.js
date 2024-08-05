@@ -18,7 +18,6 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use('/uploads', express.static('uploads'));
 
 const storage = multer.diskStorage({
@@ -187,7 +186,8 @@ server.listen(8000, () => {
 });
 
 io.on('connection', (socket) => {
-    console.log('socket user is connected: ', socket);
+    console.log('socket user is connected: ', socket.id);
+
     socket.on('add-user', async (data) => {
         // Handle 'add-user' event
     });

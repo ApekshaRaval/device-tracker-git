@@ -12,10 +12,26 @@ const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const [users, setUsers] = useState([]);
 
-
     useEffect(() => {
-        const newSocket = io(`${BACK_BASE_URL}`);
+        const newSocket = io(BACK_BASE_URL, {
+            transports: ['websocket'],  // Ensure WebSocket transport is used
+            withCredentials: true       // Ensure credentials are sent
+        });
+
         setSocket(newSocket);
+
+        newSocket.on('connect', () => {
+            console.log('WebSocket connection established');
+        });
+
+        newSocket.on('disconnect', () => {
+            console.log('WebSocket connection closed');
+        });
+
+        newSocket.on('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
+
         return () => newSocket.close();
     }, []);
 
@@ -41,4 +57,5 @@ const SocketProvider = ({ children }) => {
         </SocketContext.Provider>
     );
 };
-export default SocketProvider
+
+export default SocketProvider;
